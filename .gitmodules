@@ -1,0 +1,3 @@
+[submodule "3rd_party/pfr"]
+	path = 3rd_party/pfr
+	url = git@github.com:boostorg/pfr.git
