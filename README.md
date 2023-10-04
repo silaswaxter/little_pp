@@ -1,11 +1,11 @@
 # About
 
-LittlePP is a serialization/deserialization library for C++ which is **little**
-in size, performance cost, and API complexity. LittlePP generates (through
-templates) the serialization/deserialization methods for class types (ie `class`
-and `struct`) with optional, built-in padding and endianess conversion. LittlePP
-can handle nested class types and works on plain-old-data (POD) except pointers
-and references types (more specifics below).
+LittlePP is a serialization/deserialization header-only library for C++ which is
+**little** in size, performance cost, and API complexity. LittlePP generates
+(through templates) the serialization/deserialization methods for class types
+(ie `class` and `struct`) with optional, built-in padding and endianess
+conversion. LittlePP can handle nested class types and works on plain-old-data
+(POD) except pointers and references types (more specifics below).
 
 LittlePP was written because I was writing an embedded C++ driver for a
 coprocessor for which I had no control of its software interface; all of the
