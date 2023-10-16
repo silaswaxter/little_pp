@@ -61,7 +61,20 @@ the driver is abstracted from the platform it runs on.
 
 ## Requirements
 
+### Library Requirements
+
 - C++ Version >= C++14
+
+### Serialization/Deserialization Data Requirements
+
+LittlePP serialization and deserialization methods are templated on class types
+(i.e. `class` or `struct`).
+
+#### Supported Member Types
+
+- other class types (i.e. `class` or `struct`) with the same data model; (same
+  requirements for member types applied.)
+- plain-old-data (POD) types **except pointers and references**.
 
 ## Installing
 
