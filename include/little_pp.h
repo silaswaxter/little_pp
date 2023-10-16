@@ -6,6 +6,15 @@
 
 #include "data_model.h"
 
+// Only supporting 8-bit bytes for now; author was trying to avoid scope creep.
+// Within the embedded space (for which this library was written), non-8-bit 
+// byte architectures do still exist and are not just relics of the past. See
+// this active TI DSP and this discussion:
+// - https://www.ti.com/product/TMS320F2809
+// - https://groups.google.com/g/comp.lang.c++/c/14QZUvWE_Xc
+static_assert(CHAR_BIT == 8, "LittlePP requires 8-bit bytes at this time. "
+        "(Rationale explained in comment above.)");
+
 //-------------------------------------------------
 // std::array constexpr equality overloads
 //-------------------------------------------------
@@ -56,43 +65,12 @@ static_assert(some_array != empty_array, "These are not the same array and shoul
 static_assert(some_array != other_array, "These are not the same array and should NOT be equal.");
 //-------------------------------------------------
 
-
-// YAGNI; only interested in supporting 8-bit-byte implementations at this time. Yes, they do
-// still exist and are not just relics of the past within the embedded space. See this 
-// discussion and this active TI DSP:
-// - https://groups.google.com/g/comp.lang.c++/c/14QZUvWE_Xc
-// - https://www.ti.com/product/TMS320F2809
-static_assert(CHAR_BIT == 8, "Serialization implementation assumes/depends-on 8-bit bytes.");
-
-enum class endianess : char {
-    kBigendian = 0,
-    kLittleendian = 1,
-};
-
-// Compiler-Dependent-Code: Clang and GCC have macros defining endianess for target
-#ifdef __BYTE_ORDER__
-constexpr endianess GetThisArchitectureendianess() {
-    // Tested w/ Big-endian architectures: M68K gcc 13.2.0 and SPARC LEON gcc 13.2.0
-    // Tested w/ Little-endian architecture: x86-64 clang (trunk) 
-    #if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__ 
-    return endianess::kBigendian;
-    #endif
-    #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-    return endianess::kLittleendian;
-    #endif
-}
-#endif //__BYTE_ORDER__
-
 template <typename T>
 struct IsSupportedType {
     static const bool value = std::is_arithmetic<T>::value ||
     std::is_enum<T>::value ||
     std::is_class<T>::value;
 };
-
-
-
-
 
 template<typename SerializableClassType, typename DataModelType>
 struct SerialiazableClassAlignment {
@@ -116,56 +94,6 @@ struct SerialiazableClassAlignment {
     }
 
     static constexpr std::size_t value = constexpr_for<0, boost::pfr::tuple_size_v<SerializableClassType>, 1>();
-};
-
-struct TEST_SerialiazableClassAlignment{
-    using Simple32BitDataModel = DataModel<
-        1,  1,
-        1,  1,
-        1,  1,
-        2,  2,
-        
-        2,  2,
-        2,  2,
-        
-        4,  4,
-        4,  4,
-        
-        4,  4,
-        4,  4,
-        
-        8,  8,
-        8,  8,
-        
-        4,  4,
-        8,  8,
-        8,  8,
-        
-        1,  1
-    >;
-    
-    struct Empty{
-
-    };
-
-    struct OneByte{
-        uint8_t one;
-    };
-
-    struct TwoBytes{
-        uint16_t two;
-    };
-
-    struct ArbitraryFields1{
-        uint8_t first;
-        uint32_t second;
-        uint16_t last;
-    };
-
-    static_assert(SerialiazableClassAlignment<Empty, Simple32BitDataModel>::value == 0, "Empty struct should have no alignment.");
-    static_assert(SerialiazableClassAlignment<OneByte, Simple32BitDataModel>::value == 1, "1-byte struct should have 1 alignment.");
-    static_assert(SerialiazableClassAlignment<TwoBytes, Simple32BitDataModel>::value == 2, "2-byte struct should have 2 alignment.");
-    static_assert(SerialiazableClassAlignment<ArbitraryFields1, Simple32BitDataModel>::value == 4, "Arbitrary struct should have 4 alignment.");
 };
 
 template<typename SerializableClassType, typename DataModelType>
@@ -369,267 +297,3 @@ struct SerializableClassPaddingIndexes {
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^STEP 3^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 };
 
-struct TEST_SerializableClassPaddingIndexes{
-    // IMPORTANT: When defining test structures make sure to define them using the exact primitive types. Do not use fixed-width integers becasue the aliasing
-    //            to the underlying types is platform dependent and can break these tests.
-    using Simple32BitDataModel = DataModel<
-        1,  1,
-        1,  1,
-        1,  1,
-        2,  2,
-        
-        2,  2,
-        2,  2,
-        
-        4,  4,
-        4,  4,
-        
-        8,  8,
-        8,  8,
-        
-        8,  8,
-        8,  8,
-        
-        4,  4,
-        8,  8,
-        8,  8,
-        
-        1,  1
-    >;
-    
-    struct Empty{
-
-    };
-    static constexpr std::array<std::size_t, 0> expected_padding_locations_padding_byte_count_Empty{};
-    static constexpr std::array<std::size_t, 0> expected_padding_indexes_Empty{};
-
-    
-    struct NoPadding{
-        unsigned short a;
-        unsigned char b;
-        unsigned char c;
-        int d;
-    };
-    static constexpr std::array<std::size_t, 0> expected_padding_locations_padding_byte_count_NoPadding{};
-    static constexpr std::array<std::size_t, 0> expected_padding_indexes_NoPadding{};
-
-
-    struct OnlyInternalPadding3_Simple{
-        unsigned char foo;
-        // unsigned char padding[3];
-        unsigned int bar;
-    };
-    static constexpr std::array<std::size_t, 1> expected_padding_locations_padding_byte_count_OnlyInternalPadding3_Simple{3};
-    static constexpr std::array<std::size_t, 3> expected_padding_indexes_OnlyInternalPadding3_Simple{1, 2, 3};
-
-    struct OnlyInternalPadding3_DifferentStructAlignment{
-        unsigned char foo;
-        // unsigned char padding[3];
-        unsigned int bar;
-        unsigned long buzz;
-    };
-    static constexpr std::array<std::size_t, 1> expected_padding_locations_padding_byte_count_OnlyInternalPadding3_DifferentStructAlignment{3};
-    static constexpr std::array<std::size_t, 3> expected_padding_indexes_OnlyInternalPadding3_DifferentStructAlignment{1, 2, 3};
-
-    struct OnlyInternalPadding1_Simple{
-        unsigned char foo;
-        // unsigned char padding[1];
-        unsigned char bar;
-    };
-    static constexpr std::array<std::size_t, 1> expected_padding_locations_padding_byte_count_OnlyInternalPadding1_Simple{1};
-    static constexpr std::array<std::size_t, 1> expected_padding_indexes_OnlyInternalPadding1_Simple{1};
-
-    struct OnlyInternalPadding1_DifferentStructAlignment{
-        unsigned char foo;
-        // unsigned char padding[1];
-        unsigned short bar;
-        unsigned int buzz;
-    };
-    static constexpr std::array<std::size_t, 1> expected_padding_locations_padding_byte_count_OnlyInternalPadding1_DifferentStructAlignment{1};
-    static constexpr std::array<std::size_t, 1> expected_padding_indexes_OnlyInternalPadding1_DifferentStructAlignment{1};
-
-    struct OnlyTrailingPadding3_Simple{
-        unsigned int bar;
-        unsigned char foo;
-        // unsigned char padding[3];
-    };
-    static constexpr std::array<std::size_t, 1> expected_padding_locations_padding_byte_count_OnlyTrailingPadding3_Simple{3};
-    static constexpr std::array<std::size_t, 3> expected_padding_indexes_OnlyTrailingPadding3_Simple{5, 6, 7};
-
-    struct OnlyTrailingPadding3_DifferentStructAlignment{
-        unsigned long buzz;
-        unsigned int bar;
-        unsigned char foo;
-        // unsigned char padding[3];
-    };
-    static constexpr std::array<std::size_t, 1> expected_padding_locations_padding_byte_count_OnlyTrailingPadding3_DifferentStructAlignment{3};
-    static constexpr std::array<std::size_t, 3> expected_padding_indexes_OnlyTrailingPadding3_DifferentStructAlignment{13, 14, 15};
-
-    struct ArbitraryInternalMultiPadding1Then2 {
-        char foo;
-        // unsigned char padding[1];
-        short bar;
-        float a;
-        short b;
-        // unsigned char padding[2];
-        int c;
-    };
-    static constexpr std::array<std::size_t, 2> expected_padding_locations_padding_byte_count_ArbitraryInternalMultiPadding1Then2{1, 2};
-    static constexpr std::array<std::size_t, 3> expected_padding_indexes_ArbitraryInternalMultiPadding1Then2{1, 10, 11};
-
-    struct ArbitraryMixedPaddings1Then2Then3 {
-        char foo;
-        // unsigned char padding[1];
-        short bar;
-        float a;
-        short b;
-        // unsigned char padding[2];
-        int c;
-        unsigned char d;
-        // unsigned char padding[3];
-    };
-    static constexpr std::array<std::size_t, 3> expected_padding_locations_padding_byte_count_ArbitraryMixedPaddings1Then2Then3{1, 2, 3};
-    static constexpr std::array<std::size_t, 6> expected_padding_indexes_ArbitraryMixedPaddings1Then2Then3{1, 10, 11, 17, 18, 19};
-
-    struct ArbitraryMixedPaddingOneDataMemberBetween {
-        long bar;
-        char baz;
-        // unsigned char padding[1]
-        short foo;
-        // unsigned char padding[4]
-    };
-    static constexpr std::array<std::size_t, 2> expected_padding_locations_padding_byte_count_ArbitraryMixedPaddingOneDataMemberBetween{1, 4};
-    static constexpr std::array<std::size_t, 5> expected_padding_indexes_ArbitraryMixedPaddingOneDataMemberBetween{9, 12, 13, 14, 15};
-    
-    // A data model in which 32-bit ints can be aligned to 16-bit words
-    using Simple32BitDatModelButIntsNotSelfAligned = DataModel<
-        1,  1,
-        1,  1,
-        1,  1,
-        2,  2,
-        
-        2,  2,
-        2,  2,
-        
-        4,  2,
-        4,  2,
-        
-        8,  8,
-        8,  8,
-        
-        8,  8,
-        8,  8,
-        
-        4,  4,
-        8,  8,
-        8,  8,
-        
-        1,  1
-    >;
-    struct ForNotSelfAligned_ArbitraryMixedPaddings1Then3 {
-        char foo;
-        // unsigned char padding[1];
-        short bar;
-        float a;
-        short b;
-        int c;
-        unsigned char d;    // 15 bytes from beginning to here
-        // unsigned char padding[1];
-    };
-    static constexpr std::array<std::size_t, 2> expected_padding_locations_padding_byte_count_ForNotSelfAligned_ArbitraryMixedPaddings1Then3{1, 1};
-    static constexpr std::array<std::size_t, 2> expected_padding_indexes_ForNotSelfAligned_ArbitraryMixedPaddings1Then3{1, 15};
-
-    // TODO:
-    // - test array data members
-    // - test nested struct/class
-
-    // Test padding locations count
-    static_assert(SerializableClassPaddingIndexes<Empty, Simple32BitDataModel>::padding_locations_count == 0, "Empty struct should have no padding.");
-    static_assert(SerializableClassPaddingIndexes<Empty, Simple32BitDatModelButIntsNotSelfAligned>::padding_locations_count == 0, "Empty struct should have no padding.");
-    static_assert(SerializableClassPaddingIndexes<NoPadding, Simple32BitDataModel>::padding_locations_count == 0, "Struct should have specified padding.");
-    static_assert(SerializableClassPaddingIndexes<NoPadding, Simple32BitDatModelButIntsNotSelfAligned>::padding_locations_count == 0, "Struct should have specified padding.");
-
-    static_assert(SerializableClassPaddingIndexes<OnlyInternalPadding3_Simple, Simple32BitDataModel>::padding_locations_count == 1, "Struct should have specified padding.");
-    static_assert(SerializableClassPaddingIndexes<OnlyInternalPadding3_DifferentStructAlignment, Simple32BitDataModel>::padding_locations_count == 1, "Struct should have specified padding.");
-    
-    static_assert(SerializableClassPaddingIndexes<OnlyInternalPadding1_Simple, Simple32BitDataModel>::padding_locations_count == 1, "Struct should have specified padding.");
-    static_assert(SerializableClassPaddingIndexes<OnlyInternalPadding1_DifferentStructAlignment, Simple32BitDataModel>::padding_locations_count == 1, "Struct should have specified padding.");
- 
-    static_assert(SerializableClassPaddingIndexes<OnlyTrailingPadding3_Simple, Simple32BitDataModel>::padding_locations_count == 1, "Struct should have specified padding.");
-    static_assert(SerializableClassPaddingIndexes<OnlyTrailingPadding3_DifferentStructAlignment, Simple32BitDataModel>::padding_locations_count == 1, "Struct should have specified padding.");
-
-    static_assert(SerializableClassPaddingIndexes<ArbitraryInternalMultiPadding1Then2, Simple32BitDataModel>::padding_locations_count == 2, "Struct should have specified padding.");
-    static_assert(SerializableClassPaddingIndexes<ArbitraryMixedPaddings1Then2Then3, Simple32BitDataModel>::padding_locations_count == 3, "Struct should have specified padding.");
-    static_assert(SerializableClassPaddingIndexes<ArbitraryMixedPaddingOneDataMemberBetween, Simple32BitDataModel>::padding_locations_count == 2, "Struct should have specified padding.");
-
-    static_assert(SerializableClassPaddingIndexes<ForNotSelfAligned_ArbitraryMixedPaddings1Then3, Simple32BitDatModelButIntsNotSelfAligned>::padding_locations_count == 2, "Struct should have specified padding.");
-
-    // Test padding locations padding bytes count
-    static_assert(SerializableClassPaddingIndexes<Empty, Simple32BitDataModel>::padding_locations_padding_byte_count == expected_padding_locations_padding_byte_count_Empty, "Empty struct should have no padding.");
-    static_assert(SerializableClassPaddingIndexes<NoPadding, Simple32BitDataModel>::padding_locations_padding_byte_count == expected_padding_locations_padding_byte_count_NoPadding, "Struct should have specified padding.");
-
-    static_assert(SerializableClassPaddingIndexes<OnlyInternalPadding3_Simple, Simple32BitDataModel>::padding_locations_padding_byte_count == expected_padding_locations_padding_byte_count_OnlyInternalPadding3_Simple, "Struct should have specified padding.");
-    static_assert(SerializableClassPaddingIndexes<OnlyInternalPadding3_DifferentStructAlignment, Simple32BitDataModel>::padding_locations_padding_byte_count == expected_padding_locations_padding_byte_count_OnlyInternalPadding3_DifferentStructAlignment, "Struct should have specified padding.");
-    
-    static_assert(SerializableClassPaddingIndexes<OnlyInternalPadding1_Simple, Simple32BitDataModel>::padding_locations_padding_byte_count == expected_padding_locations_padding_byte_count_OnlyInternalPadding1_Simple, "Struct should have specified padding.");
-    static_assert(SerializableClassPaddingIndexes<OnlyInternalPadding1_DifferentStructAlignment, Simple32BitDataModel>::padding_locations_padding_byte_count == expected_padding_locations_padding_byte_count_OnlyInternalPadding1_DifferentStructAlignment, "Struct should have specified padding.");
- 
-    static_assert(SerializableClassPaddingIndexes<OnlyTrailingPadding3_Simple, Simple32BitDataModel>::padding_locations_padding_byte_count == expected_padding_locations_padding_byte_count_OnlyTrailingPadding3_Simple, "Struct should have specified padding.");
-    static_assert(SerializableClassPaddingIndexes<OnlyTrailingPadding3_DifferentStructAlignment, Simple32BitDataModel>::padding_locations_padding_byte_count == expected_padding_locations_padding_byte_count_OnlyTrailingPadding3_DifferentStructAlignment, "Struct should have specified padding.");
-
-    static_assert(SerializableClassPaddingIndexes<ArbitraryInternalMultiPadding1Then2, Simple32BitDataModel>::padding_locations_padding_byte_count == expected_padding_locations_padding_byte_count_ArbitraryInternalMultiPadding1Then2, "Struct should have specified padding.");
-    static_assert(SerializableClassPaddingIndexes<ArbitraryMixedPaddings1Then2Then3, Simple32BitDataModel>::padding_locations_padding_byte_count == expected_padding_locations_padding_byte_count_ArbitraryMixedPaddings1Then2Then3, "Struct should have specified padding.");
-    static_assert(SerializableClassPaddingIndexes<ArbitraryMixedPaddingOneDataMemberBetween, Simple32BitDataModel>::padding_locations_padding_byte_count == expected_padding_locations_padding_byte_count_ArbitraryMixedPaddingOneDataMemberBetween, "Struct should have specified padding.");
-
-    static_assert(SerializableClassPaddingIndexes<ForNotSelfAligned_ArbitraryMixedPaddings1Then3, Simple32BitDatModelButIntsNotSelfAligned>::padding_locations_padding_byte_count == expected_padding_locations_padding_byte_count_ForNotSelfAligned_ArbitraryMixedPaddings1Then3, "Struct should have specified padding.");
-
-    // Test padding byte count
-    static_assert(SerializableClassPaddingIndexes<Empty, Simple32BitDataModel>::padding_bytes_count == 0, "Empty struct should have no padding.");
-    static_assert(SerializableClassPaddingIndexes<NoPadding, Simple32BitDataModel>::padding_bytes_count == 0, "Struct should have specified padding.");
-
-    static_assert(SerializableClassPaddingIndexes<OnlyInternalPadding3_Simple, Simple32BitDataModel>::padding_bytes_count == 3, "Struct should have specified padding.");
-    static_assert(SerializableClassPaddingIndexes<OnlyInternalPadding3_DifferentStructAlignment, Simple32BitDataModel>::padding_bytes_count == 3, "Struct should have specified padding.");
-    
-    static_assert(SerializableClassPaddingIndexes<OnlyInternalPadding1_Simple, Simple32BitDataModel>::padding_bytes_count == 1, "Struct should have specified padding.");
-    static_assert(SerializableClassPaddingIndexes<OnlyInternalPadding1_DifferentStructAlignment, Simple32BitDataModel>::padding_bytes_count == 1, "Struct should have specified padding.");
- 
-    static_assert(SerializableClassPaddingIndexes<OnlyTrailingPadding3_Simple, Simple32BitDataModel>::padding_bytes_count == 3, "Struct should have specified padding.");
-    static_assert(SerializableClassPaddingIndexes<OnlyTrailingPadding3_DifferentStructAlignment, Simple32BitDataModel>::padding_bytes_count == 3, "Struct should have specified padding.");
-
-    static_assert(SerializableClassPaddingIndexes<ArbitraryInternalMultiPadding1Then2, Simple32BitDataModel>::padding_bytes_count == 3, "Struct should have specified padding.");
-    static_assert(SerializableClassPaddingIndexes<ArbitraryMixedPaddings1Then2Then3, Simple32BitDataModel>::padding_bytes_count == 6, "Struct should have specified padding.");
-    static_assert(SerializableClassPaddingIndexes<ArbitraryMixedPaddingOneDataMemberBetween, Simple32BitDataModel>::padding_bytes_count == 5, "Struct should have specified padding.");
-
-    static_assert(SerializableClassPaddingIndexes<ForNotSelfAligned_ArbitraryMixedPaddings1Then3, Simple32BitDatModelButIntsNotSelfAligned>::padding_bytes_count == 2, "Struct should have specified padding.");
-
-    // Test padding indexes method
-    static_assert(SerializableClassPaddingIndexes<Empty, Simple32BitDataModel>::padding_byte_indexes == expected_padding_indexes_Empty, "Empty struct should have no padding.");
-    static_assert(SerializableClassPaddingIndexes<NoPadding, Simple32BitDataModel>::padding_byte_indexes == expected_padding_indexes_NoPadding, "Struct should have specified padding.");
-
-    static_assert(SerializableClassPaddingIndexes<OnlyInternalPadding3_Simple, Simple32BitDataModel>::padding_byte_indexes == expected_padding_indexes_OnlyInternalPadding3_Simple, "Struct should have specified padding.");
-    static_assert(SerializableClassPaddingIndexes<OnlyInternalPadding3_DifferentStructAlignment, Simple32BitDataModel>::padding_byte_indexes == expected_padding_indexes_OnlyInternalPadding3_DifferentStructAlignment, "Struct should have specified padding.");
-    
-    static_assert(SerializableClassPaddingIndexes<OnlyInternalPadding1_Simple, Simple32BitDataModel>::padding_byte_indexes == expected_padding_indexes_OnlyInternalPadding1_Simple, "Struct should have specified padding.");
-    static_assert(SerializableClassPaddingIndexes<OnlyInternalPadding1_DifferentStructAlignment, Simple32BitDataModel>::padding_byte_indexes == expected_padding_indexes_OnlyInternalPadding1_DifferentStructAlignment, "Struct should have specified padding.");
- 
-    static_assert(SerializableClassPaddingIndexes<OnlyTrailingPadding3_Simple, Simple32BitDataModel>::padding_byte_indexes == expected_padding_indexes_OnlyTrailingPadding3_Simple, "Struct should have specified padding.");
-    static_assert(SerializableClassPaddingIndexes<OnlyTrailingPadding3_DifferentStructAlignment, Simple32BitDataModel>::padding_byte_indexes == expected_padding_indexes_OnlyTrailingPadding3_DifferentStructAlignment, "Struct should have specified padding.");
-
-    static_assert(SerializableClassPaddingIndexes<ArbitraryInternalMultiPadding1Then2, Simple32BitDataModel>::padding_byte_indexes == expected_padding_indexes_ArbitraryInternalMultiPadding1Then2, "Struct should have specified padding.");
-    static_assert(SerializableClassPaddingIndexes<ArbitraryMixedPaddings1Then2Then3, Simple32BitDataModel>::padding_byte_indexes == expected_padding_indexes_ArbitraryMixedPaddings1Then2Then3, "Struct should have specified padding.");
-    static_assert(SerializableClassPaddingIndexes<ArbitraryMixedPaddingOneDataMemberBetween, Simple32BitDataModel>::padding_byte_indexes == expected_padding_indexes_ArbitraryMixedPaddingOneDataMemberBetween, "Struct should have specified padding.");
-
-    static_assert(SerializableClassPaddingIndexes<ForNotSelfAligned_ArbitraryMixedPaddings1Then3, Simple32BitDatModelButIntsNotSelfAligned>::padding_byte_indexes == expected_padding_indexes_ForNotSelfAligned_ArbitraryMixedPaddings1Then3, "Struct should have specified padding.");
-};
-
-int main() {
-
-    auto thing_under_debug = SerializableClassPaddingIndexes<TEST_SerializableClassPaddingIndexes::ForNotSelfAligned_ArbitraryMixedPaddings1Then3, TEST_SerializableClassPaddingIndexes::Simple32BitDatModelButIntsNotSelfAligned>::padding_byte_indexes;
-    std::cout << "# of elements = " << thing_under_debug.size() << std::endl;
-
-    for(int i = 0; i < thing_under_debug.size(); i++) {
-        std::cout << thing_under_debug[i] << std::endl;
-    }
-
-    return 0;
-}
