@@ -13,7 +13,7 @@ enum class Endianess {
 // NOTE: this code is compiler-dependent. Currently, Clang and GCC are
 //       implemented.
 #ifdef __BYTE_ORDER__
-constexpr Endianess GetThisArchitectureEndianess() {
+constexpr auto get_this_architecture_endianess() -> Endianess {
 // Tested w/ Big-endian architectures: M68K gcc 13.2.0 and SPARC LEON gcc 13.2.0
 // Tested w/ Little-endian architecture: x86-64 clang (trunk)
 #if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
@@ -23,7 +23,7 @@ constexpr Endianess GetThisArchitectureEndianess() {
   return Endianess::kLittleEndian;
 #endif
 }
-#endif //__BYTE_ORDER__
+#endif  //__BYTE_ORDER__
 
 // Encode sizeof and alignof of supported POD type into a DataModel type.
 // See https://en.cppreference.com/w/cpp/language/types
@@ -50,139 +50,185 @@ template <std::size_t kCharSize, std::size_t kCharAlign,
 
           std::size_t kBoolSize, std::size_t kBoolAlign>
 struct DataModel {
-  template <class T> static constexpr std::size_t GetAlignment() = delete;
+  template <class T>
+  static constexpr auto get_alignment() -> std::size_t = delete;
 
-  template <> static constexpr std::size_t GetAlignment<char>() {
+  template <>
+  static constexpr auto get_alignment<char>() -> std::size_t {
     return static_cast<std::size_t>(kCharAlign);
   }
 
-  template <> static constexpr std::size_t GetAlignment<unsigned char>() {
+  template <>
+  static constexpr auto get_alignment<unsigned char>() -> std::size_t {
     return static_cast<std::size_t>(kUnsignedCharAlign);
   }
 
-  template <> static constexpr std::size_t GetAlignment<signed char>() {
+  template <>
+  static constexpr auto get_alignment<signed char>() -> std::size_t {
     return static_cast<std::size_t>(kSignedCharAlign);
   }
 
-  template <> static constexpr std::size_t GetAlignment<wchar_t>() {
+  template <>
+  static constexpr auto get_alignment<wchar_t>() -> std::size_t {
     return static_cast<std::size_t>(kWCharAlign);
   }
 
-  template <> static constexpr std::size_t GetAlignment<short>() {
+  template <>
+  // NOLINTNEXTLINE(google-runtime-int)
+  static constexpr auto get_alignment<short>() -> std::size_t {
     return static_cast<std::size_t>(kShortAlign);
   }
 
-  template <> static constexpr std::size_t GetAlignment<unsigned short>() {
+  template <>
+  // NOLINTNEXTLINE(google-runtime-int)
+  static constexpr auto get_alignment<unsigned short>() -> std::size_t {
     return static_cast<std::size_t>(kUnsignedShortAlign);
   }
 
-  template <> static constexpr std::size_t GetAlignment<int>() {
+  template <>
+  static constexpr auto get_alignment<int>() -> std::size_t {
     return static_cast<std::size_t>(kIntAlign);
   }
 
-  template <> static constexpr std::size_t GetAlignment<unsigned int>() {
+  template <>
+  static constexpr auto get_alignment<unsigned int>() -> std::size_t {
     return static_cast<std::size_t>(kUnsignedIntAlign);
   }
 
-  template <> static constexpr std::size_t GetAlignment<long>() {
+  template <>
+  // NOLINTNEXTLINE(google-runtime-int)
+  static constexpr auto get_alignment<long>() -> std::size_t {
     return static_cast<std::size_t>(kLongAlign);
   }
 
-  template <> static constexpr std::size_t GetAlignment<unsigned long>() {
+  template <>
+  // NOLINTNEXTLINE(google-runtime-int)
+  static constexpr auto get_alignment<unsigned long>() -> std::size_t {
     return static_cast<std::size_t>(kUnsignedLongAlign);
   }
 
-  template <> static constexpr std::size_t GetAlignment<long long>() {
+  template <>
+  // NOLINTNEXTLINE(google-runtime-int)
+  static constexpr auto get_alignment<long long>() -> std::size_t {
     return static_cast<std::size_t>(kLongLongAlign);
   }
 
-  template <> static constexpr std::size_t GetAlignment<unsigned long long>() {
+  template <>
+  // NOLINTNEXTLINE(google-runtime-int)
+  static constexpr auto get_alignment<unsigned long long>() -> std::size_t {
     return static_cast<std::size_t>(kUnsignedLongLongAlign);
   }
 
-  template <> static constexpr std::size_t GetAlignment<float>() {
+  template <>
+  static constexpr auto get_alignment<float>() -> std::size_t {
     return static_cast<std::size_t>(kFloatAlign);
   }
 
-  template <> static constexpr std::size_t GetAlignment<double>() {
+  template <>
+  static constexpr auto get_alignment<double>() -> std::size_t {
     return static_cast<std::size_t>(kDoubleAlign);
   }
 
-  template <> static constexpr std::size_t GetAlignment<long double>() {
+  template <>
+  static constexpr auto get_alignment<long double>() -> std::size_t {
     return static_cast<std::size_t>(kLongDoubleAlign);
   }
 
-  template <> static constexpr std::size_t GetAlignment<bool>() {
+  template <>
+  static constexpr auto get_alignment<bool>() -> std::size_t {
     return static_cast<std::size_t>(kBoolAlign);
   }
 
-  template <class T> static constexpr std::size_t GetSize() = delete;
+  template <class T>
+  static constexpr auto get_size() -> std::size_t = delete;
 
-  template <> static constexpr std::size_t GetSize<char>() {
+  template <>
+  static constexpr auto get_size<char>() -> std::size_t {
     return static_cast<std::size_t>(kCharSize);
   }
 
-  template <> static constexpr std::size_t GetSize<unsigned char>() {
+  template <>
+  static constexpr auto get_size<unsigned char>() -> std::size_t {
     return static_cast<std::size_t>(kUnsignedCharSize);
   }
 
-  template <> static constexpr std::size_t GetSize<signed char>() {
+  template <>
+  static constexpr auto get_size<signed char>() -> std::size_t {
     return static_cast<std::size_t>(kSignedCharSize);
   }
 
-  template <> static constexpr std::size_t GetSize<wchar_t>() {
+  template <>
+  static constexpr auto get_size<wchar_t>() -> std::size_t {
     return static_cast<std::size_t>(kWCharSize);
   }
 
-  template <> static constexpr std::size_t GetSize<short>() {
+  template <>
+  // NOLINTNEXTLINE(google-runtime-int)
+  static constexpr auto get_size<short>() -> std::size_t {
     return static_cast<std::size_t>(kShortSize);
   }
 
-  template <> static constexpr std::size_t GetSize<unsigned short>() {
+  template <>
+  // NOLINTNEXTLINE(google-runtime-int)
+  static constexpr auto get_size<unsigned short>() -> std::size_t {
     return static_cast<std::size_t>(kUnsignedShortSize);
   }
 
-  template <> static constexpr std::size_t GetSize<int>() {
+  template <>
+  static constexpr auto get_size<int>() -> std::size_t {
     return static_cast<std::size_t>(kIntSize);
   }
 
-  template <> static constexpr std::size_t GetSize<unsigned int>() {
+  template <>
+  static constexpr auto get_size<unsigned int>() -> std::size_t {
     return static_cast<std::size_t>(kUnsignedIntSize);
   }
 
-  template <> static constexpr std::size_t GetSize<long>() {
+  template <>
+  // NOLINTNEXTLINE(google-runtime-int)
+  static constexpr auto get_size<long>() -> std::size_t {
     return static_cast<std::size_t>(kLongSize);
   }
 
-  template <> static constexpr std::size_t GetSize<unsigned long>() {
+  template <>
+  // NOLINTNEXTLINE(google-runtime-int)
+  static constexpr auto get_size<unsigned long>() -> std::size_t {
     return static_cast<std::size_t>(kUnsignedLongSize);
   }
 
-  template <> static constexpr std::size_t GetSize<long long>() {
+  template <>
+  // NOLINTNEXTLINE(google-runtime-int)
+  static constexpr auto get_size<long long>() -> std::size_t {
     return static_cast<std::size_t>(kLongLongSize);
   }
 
-  template <> static constexpr std::size_t GetSize<unsigned long long>() {
+  template <>
+  // NOLINTNEXTLINE(google-runtime-int)
+  static constexpr auto get_size<unsigned long long>() -> std::size_t {
     return static_cast<std::size_t>(kUnsignedLongLongSize);
   }
 
-  template <> static constexpr std::size_t GetSize<float>() {
+  template <>
+  static constexpr auto get_size<float>() -> std::size_t {
     return static_cast<std::size_t>(kFloatSize);
   }
 
-  template <> static constexpr std::size_t GetSize<double>() {
+  template <>
+  static constexpr auto get_size<double>() -> std::size_t {
     return static_cast<std::size_t>(kDoubleSize);
   }
 
-  template <> static constexpr std::size_t GetSize<long double>() {
+  template <>
+  static constexpr auto get_size<long double>() -> std::size_t {
     return static_cast<std::size_t>(kLongDoubleSize);
   }
 
-  template <> static constexpr std::size_t GetSize<bool>() {
+  template <>
+  static constexpr auto get_size<bool>() -> std::size_t {
     return static_cast<std::size_t>(kBoolSize);
   }
 };
 
-} // namespace little_pp
+}  // namespace little_pp
 
-#endif // DATA_MODEL_H
+#endif  // DATA_MODEL_H
