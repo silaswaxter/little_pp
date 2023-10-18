@@ -37,7 +37,7 @@ def _impl(ctx):
         ),
         tool_path(
             name = "ar",
-            path = "/bin/false",
+            path = "/usr/bin/llvm-ar",
         ),
         tool_path(
             name = "cpp",
@@ -45,19 +45,19 @@ def _impl(ctx):
         ),
         tool_path(
             name = "gcov",
-            path = "/bin/false",
+            path = "/usr/bin/llvm-cov",
         ),
         tool_path(
             name = "nm",
-            path = "/bin/false",
+            path = "/usr/bin/llvm-nm",
         ),
         tool_path(
             name = "objdump",
-            path = "/bin/false",
+            path = "/usr/bin/llvm-objdump",
         ),
         tool_path(
             name = "strip",
-            path = "/bin/false",
+            path = "/usr/bin/llvm-strip",
         ),
     ]
 
@@ -88,6 +88,7 @@ def _impl(ctx):
                         flag_group(
                             flags = [
                                 "-lstdc++",
+                                "-lm"
                             ],
                         ),
                     ]),
