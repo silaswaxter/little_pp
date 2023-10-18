@@ -18,6 +18,7 @@ refresh_compile_commands(
     # https://docs.bazel.build/versions/main/query.html#expressions
     targets = {
         "//:main_static_testing": "--config=clang_config",
+        "//test:hello_test": "--config=clang_config",
     },
 )
 
