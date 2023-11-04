@@ -2,6 +2,7 @@
 #define DATA_MODEL_H
 
 #include <cstddef>
+#include <type_traits>
 
 namespace little_pp {
 
@@ -51,181 +52,177 @@ template <std::size_t kCharSize, std::size_t kCharAlign,
           std::size_t kBoolSize, std::size_t kBoolAlign>
 struct DataModel {
   template <class T>
-  static constexpr auto get_alignment() -> std::size_t = delete;
+  static constexpr auto get_size() -> std::size_t {
+    // NOTE: this method cannot be implemented using template full
+    //       specialization:
+    //       ```
+    //       An explicit specialization of a member function, member class or
+    //       static data member of a class template shall be declared in the
+    //       namespace of which the class template is a member.
+    //       ```C++03, §14.7.3/2:
+    //
+    //       Still an issue in C+14. See this stack overflow page
+    //       page:https://stackoverflow.com/questions/3052579/explicit-specialization-in-non-namespace-scope
+    //       note that a user comments this is no longer true for C++17.
+    if (std::is_same<T, char>::value) {
+      return static_cast<std::size_t>(kCharSize);
+    }
+    if (std::is_same<T, char>::value) {
+      return static_cast<std::size_t>(kCharSize);
+    }
 
-  template <>
-  static constexpr auto get_alignment<char>() -> std::size_t {
-    return static_cast<std::size_t>(kCharAlign);
-  }
+    if (std::is_same<T, unsigned char>::value) {
+      return static_cast<std::size_t>(kUnsignedCharSize);
+    }
 
-  template <>
-  static constexpr auto get_alignment<unsigned char>() -> std::size_t {
-    return static_cast<std::size_t>(kUnsignedCharAlign);
-  }
+    if (std::is_same<T, signed char>::value) {
+      return static_cast<std::size_t>(kSignedCharSize);
+    }
 
-  template <>
-  static constexpr auto get_alignment<signed char>() -> std::size_t {
-    return static_cast<std::size_t>(kSignedCharAlign);
-  }
+    if (std::is_same<T, wchar_t>::value) {
+      return static_cast<std::size_t>(kWCharSize);
+    }
 
-  template <>
-  static constexpr auto get_alignment<wchar_t>() -> std::size_t {
-    return static_cast<std::size_t>(kWCharAlign);
-  }
+    // NOLINTNEXTLINE(google-runtime-int)
+    if (std::is_same<T, short>::value) {
+      return static_cast<std::size_t>(kShortSize);
+    }
 
-  template <>
-  // NOLINTNEXTLINE(google-runtime-int)
-  static constexpr auto get_alignment<short>() -> std::size_t {
-    return static_cast<std::size_t>(kShortAlign);
-  }
+    // NOLINTNEXTLINE(google-runtime-int)
+    if (std::is_same<T, unsigned short>::value) {
+      return static_cast<std::size_t>(kUnsignedShortSize);
+    }
 
-  template <>
-  // NOLINTNEXTLINE(google-runtime-int)
-  static constexpr auto get_alignment<unsigned short>() -> std::size_t {
-    return static_cast<std::size_t>(kUnsignedShortAlign);
-  }
+    if (std::is_same<T, int>::value) {
+      return static_cast<std::size_t>(kIntSize);
+    }
 
-  template <>
-  static constexpr auto get_alignment<int>() -> std::size_t {
-    return static_cast<std::size_t>(kIntAlign);
-  }
+    if (std::is_same<T, unsigned int>::value) {
+      return static_cast<std::size_t>(kUnsignedIntSize);
+    }
 
-  template <>
-  static constexpr auto get_alignment<unsigned int>() -> std::size_t {
-    return static_cast<std::size_t>(kUnsignedIntAlign);
-  }
+    // NOLINTNEXTLINE(google-runtime-int)
+    if (std::is_same<T, long>::value) {
+      return static_cast<std::size_t>(kLongSize);
+    }
 
-  template <>
-  // NOLINTNEXTLINE(google-runtime-int)
-  static constexpr auto get_alignment<long>() -> std::size_t {
-    return static_cast<std::size_t>(kLongAlign);
-  }
+    // NOLINTNEXTLINE(google-runtime-int)
+    if (std::is_same<T, unsigned long>::value) {
+      return static_cast<std::size_t>(kUnsignedLongSize);
+    }
 
-  template <>
-  // NOLINTNEXTLINE(google-runtime-int)
-  static constexpr auto get_alignment<unsigned long>() -> std::size_t {
-    return static_cast<std::size_t>(kUnsignedLongAlign);
-  }
+    // NOLINTNEXTLINE(google-runtime-int)
+    if (std::is_same<T, long long>::value) {
+      return static_cast<std::size_t>(kLongLongSize);
+    }
 
-  template <>
-  // NOLINTNEXTLINE(google-runtime-int)
-  static constexpr auto get_alignment<long long>() -> std::size_t {
-    return static_cast<std::size_t>(kLongLongAlign);
-  }
+    // NOLINTNEXTLINE(google-runtime-int)
+    if (std::is_same<T, unsigned long long>::value) {
+      return static_cast<std::size_t>(kUnsignedLongLongSize);
+    }
 
-  template <>
-  // NOLINTNEXTLINE(google-runtime-int)
-  static constexpr auto get_alignment<unsigned long long>() -> std::size_t {
-    return static_cast<std::size_t>(kUnsignedLongLongAlign);
-  }
+    if (std::is_same<T, float>::value) {
+      return static_cast<std::size_t>(kFloatSize);
+    }
 
-  template <>
-  static constexpr auto get_alignment<float>() -> std::size_t {
-    return static_cast<std::size_t>(kFloatAlign);
-  }
+    if (std::is_same<T, double>::value) {
+      return static_cast<std::size_t>(kDoubleSize);
+    }
 
-  template <>
-  static constexpr auto get_alignment<double>() -> std::size_t {
-    return static_cast<std::size_t>(kDoubleAlign);
-  }
+    if (std::is_same<T, long double>::value) {
+      return static_cast<std::size_t>(kLongDoubleSize);
+    }
 
-  template <>
-  static constexpr auto get_alignment<long double>() -> std::size_t {
-    return static_cast<std::size_t>(kLongDoubleAlign);
-  }
-
-  template <>
-  static constexpr auto get_alignment<bool>() -> std::size_t {
-    return static_cast<std::size_t>(kBoolAlign);
+    if (std::is_same<T, bool>::value) {
+      return static_cast<std::size_t>(kBoolSize);
+    }
   }
 
   template <class T>
-  static constexpr auto get_size() -> std::size_t = delete;
+  static constexpr auto get_alignment() -> std::size_t {
+    // NOTE: this method cannot be implemented using template full
+    //       specialization:
+    //       ```
+    //       An explicit specialization of a member function, member class or
+    //       static data member of a class template shall be declared in the
+    //       namespace of which the class template is a member.
+    //       ```C++03, §14.7.3/2:
+    //
+    //       Still an issue in C+14. See this stack overflow page
+    //       page:https://stackoverflow.com/questions/3052579/explicit-specialization-in-non-namespace-scope
+    //       note that a user comments this is no longer true for C++17.
+    if (std::is_same<T, char>::value) {
+      return static_cast<std::size_t>(kCharAlign);
+    }
+    if (std::is_same<T, char>::value) {
+      return static_cast<std::size_t>(kCharAlign);
+    }
 
-  template <>
-  static constexpr auto get_size<char>() -> std::size_t {
-    return static_cast<std::size_t>(kCharSize);
-  }
+    if (std::is_same<T, unsigned char>::value) {
+      return static_cast<std::size_t>(kUnsignedCharAlign);
+    }
 
-  template <>
-  static constexpr auto get_size<unsigned char>() -> std::size_t {
-    return static_cast<std::size_t>(kUnsignedCharSize);
-  }
+    if (std::is_same<T, signed char>::value) {
+      return static_cast<std::size_t>(kSignedCharAlign);
+    }
 
-  template <>
-  static constexpr auto get_size<signed char>() -> std::size_t {
-    return static_cast<std::size_t>(kSignedCharSize);
-  }
+    if (std::is_same<T, wchar_t>::value) {
+      return static_cast<std::size_t>(kWCharAlign);
+    }
 
-  template <>
-  static constexpr auto get_size<wchar_t>() -> std::size_t {
-    return static_cast<std::size_t>(kWCharSize);
-  }
+    // NOLINTNEXTLINE(google-runtime-int)
+    if (std::is_same<T, short>::value) {
+      return static_cast<std::size_t>(kShortAlign);
+    }
 
-  template <>
-  // NOLINTNEXTLINE(google-runtime-int)
-  static constexpr auto get_size<short>() -> std::size_t {
-    return static_cast<std::size_t>(kShortSize);
-  }
+    // NOLINTNEXTLINE(google-runtime-int)
+    if (std::is_same<T, unsigned short>::value) {
+      return static_cast<std::size_t>(kUnsignedShortAlign);
+    }
 
-  template <>
-  // NOLINTNEXTLINE(google-runtime-int)
-  static constexpr auto get_size<unsigned short>() -> std::size_t {
-    return static_cast<std::size_t>(kUnsignedShortSize);
-  }
+    if (std::is_same<T, int>::value) {
+      return static_cast<std::size_t>(kIntAlign);
+    }
 
-  template <>
-  static constexpr auto get_size<int>() -> std::size_t {
-    return static_cast<std::size_t>(kIntSize);
-  }
+    if (std::is_same<T, unsigned int>::value) {
+      return static_cast<std::size_t>(kUnsignedIntAlign);
+    }
 
-  template <>
-  static constexpr auto get_size<unsigned int>() -> std::size_t {
-    return static_cast<std::size_t>(kUnsignedIntSize);
-  }
+    // NOLINTNEXTLINE(google-runtime-int)
+    if (std::is_same<T, long>::value) {
+      return static_cast<std::size_t>(kLongAlign);
+    }
 
-  template <>
-  // NOLINTNEXTLINE(google-runtime-int)
-  static constexpr auto get_size<long>() -> std::size_t {
-    return static_cast<std::size_t>(kLongSize);
-  }
+    // NOLINTNEXTLINE(google-runtime-int)
+    if (std::is_same<T, unsigned long>::value) {
+      return static_cast<std::size_t>(kUnsignedLongAlign);
+    }
 
-  template <>
-  // NOLINTNEXTLINE(google-runtime-int)
-  static constexpr auto get_size<unsigned long>() -> std::size_t {
-    return static_cast<std::size_t>(kUnsignedLongSize);
-  }
+    // NOLINTNEXTLINE(google-runtime-int)
+    if (std::is_same<T, long long>::value) {
+      return static_cast<std::size_t>(kLongLongAlign);
+    }
 
-  template <>
-  // NOLINTNEXTLINE(google-runtime-int)
-  static constexpr auto get_size<long long>() -> std::size_t {
-    return static_cast<std::size_t>(kLongLongSize);
-  }
+    // NOLINTNEXTLINE(google-runtime-int)
+    if (std::is_same<T, unsigned long long>::value) {
+      return static_cast<std::size_t>(kUnsignedLongLongAlign);
+    }
 
-  template <>
-  // NOLINTNEXTLINE(google-runtime-int)
-  static constexpr auto get_size<unsigned long long>() -> std::size_t {
-    return static_cast<std::size_t>(kUnsignedLongLongSize);
-  }
+    if (std::is_same<T, float>::value) {
+      return static_cast<std::size_t>(kFloatAlign);
+    }
 
-  template <>
-  static constexpr auto get_size<float>() -> std::size_t {
-    return static_cast<std::size_t>(kFloatSize);
-  }
+    if (std::is_same<T, double>::value) {
+      return static_cast<std::size_t>(kDoubleAlign);
+    }
 
-  template <>
-  static constexpr auto get_size<double>() -> std::size_t {
-    return static_cast<std::size_t>(kDoubleSize);
-  }
+    if (std::is_same<T, long double>::value) {
+      return static_cast<std::size_t>(kLongDoubleAlign);
+    }
 
-  template <>
-  static constexpr auto get_size<long double>() -> std::size_t {
-    return static_cast<std::size_t>(kLongDoubleSize);
-  }
-
-  template <>
-  static constexpr auto get_size<bool>() -> std::size_t {
-    return static_cast<std::size_t>(kBoolSize);
+    if (std::is_same<T, bool>::value) {
+      return static_cast<std::size_t>(kBoolAlign);
+    }
   }
 };
 
