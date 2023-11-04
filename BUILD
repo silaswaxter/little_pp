@@ -11,19 +11,12 @@ refresh_compile_commands(
 
     # Specify the targets of interest; specify a dict of targets and any flags
     # required to build them. No need to add flags already in .bazelrc. They're
-    # automatically picked up. If you don't need flags, a list of targets is 
+    # automatically picked up. If you don't need flags, a list of targets is
     # also okay, as is a single target string. Wildcard patterns, like //... for
-    # everything, *are* allowed here, just like a build. As are additional 
-    # targets (+) and subtractions (-), like in bazel query 
+    # everything, *are* allowed here, just like a build. As are additional
+    # targets (+) and subtractions (-), like in bazel query
     # https://docs.bazel.build/versions/main/query.html#expressions
     targets = {
-        "//:main_static_testing": "--config=clang_config",
-        "//test:hello_test": "--config=clang_config",
+        "//test:all": "--config=clang_config",
     },
-)
-
-cc_binary(
-    name = "main_static_testing",
-    srcs = ["main_static_testing.cc"],
-    deps = ["//include:little_pp"],
 )
