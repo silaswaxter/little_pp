@@ -1,3 +1,6 @@
+#ifndef LITTLE_PP_H
+#define LITTLE_PP_H
+
 #include <array>
 #include <boost/pfr/core.hpp>
 #include <climits>
@@ -420,3 +423,5 @@ struct SerializableClassPaddingIndexes {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^STEP
   // 3^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 };
+
+#endif  // LITTLE_PP_H
