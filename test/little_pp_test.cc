@@ -15,7 +15,10 @@
 
 #include <gtest/gtest.h>
 
-#include "little_pp_test_data.hpp"
+#include "test_data/expected_data_empty_struct.h"
+#include "test_data/expected_data_internal_padding_3_32bit_struct.h"
+#include "test_data/expected_data_no_padding_32bit_struct.h"
+#include "test_data/interface_expected_data.hpp"
 
 template <class T>
 class PaddingReflectionTest : public testing::Test {
@@ -31,18 +34,18 @@ class PaddingReflectionTest : public testing::Test {
 
 // The list of types we want to test.
 using DataModelImplementations = testing::Types<
-    test_data::struct_empty::ExpectedData<test_data::Simple32BitDataModel>,
     test_data::struct_empty::ExpectedData<
-        test_data::Simple32BitButIntsNotSelfAlignedDataModel>,
+        test_data::data_models::Simple32BitDataModel>,
+    test_data::struct_empty::ExpectedData<
+        test_data::data_models::Simple32BitButIntsNotSelfAlignedDataModel>,
     test_data::struct_no_padding_32bit::ExpectedData<
-        test_data::Simple32BitDataModel>,
+        test_data::data_models::Simple32BitDataModel>,
     test_data::struct_no_padding_32bit::ExpectedData<
-        test_data::Simple32BitButIntsNotSelfAlignedDataModel>,
+        test_data::data_models::Simple32BitButIntsNotSelfAlignedDataModel>,
     test_data::struct_internal_padding_3_32bit::ExpectedData<
-        test_data::Simple32BitDataModel>,
+        test_data::data_models::Simple32BitDataModel>,
     test_data::struct_internal_padding_3_32bit::ExpectedData<
-        test_data::Simple32BitButIntsNotSelfAlignedDataModel> 
->;
+        test_data::data_models::Simple32BitButIntsNotSelfAlignedDataModel> >;
 
 TYPED_TEST_SUITE(PaddingReflectionTest, DataModelImplementations);
 
@@ -62,12 +65,12 @@ TYPED_TEST(PaddingReflectionTest,
       "Padding locations padding-byte count did not match expected.");
 }
 
-// TYPED_TEST(PaddingReflectionTest, ReturnsExpectedPaddingByteIndexes) {
-//   static_assert(
-//       TestFixture::LittlePPPadding::kPaddingByteIndexes ==
-//           TestFixture::ExpectedData::get_expected_padding_byte_indexes(),
-//       "Padding indexes did not match expected.");
-// }
+TYPED_TEST(PaddingReflectionTest, ReturnsExpectedPaddingByteIndexes) {
+  static_assert(
+      TestFixture::LittlePPPadding::kPaddingByteIndexes ==
+          TestFixture::ExpectedData::get_expected_padding_byte_indexes(),
+      "Padding indexes did not match expected.");
+}
 
 //   struct OnlyInternalPadding3_DifferentStructAlignment {
 //     unsigned char foo;
