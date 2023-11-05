@@ -1,4 +1,20 @@
-// ABOUT:
+// ABOUT: This set of test implementations is not optimal, but i tried to make
+//        it okay. The following description should help you get your bearings
+//        if you have to make changes.
+//
+//        Here, I'll briefly explain how everything is hooked up. First off, we
+//        have a template class which inherits from gtest's test; its a testing
+//        framework that is templated--i.e. parameterized--on whatever the type
+//        under test is. Next, we declare a collection of types we want to test.
+//        The type under test is the structure to "analyze/serialize"; its
+//        templated on the data model, so in this list the type under test is
+//        declared for each data model it has defined expectations for. Lastly,
+//        typed test suites are declared in which the templated framework and
+//        list of types to test are passed; then within, a static_assert checks
+//        that the actual value matches the expected value. Note that a gtest
+//        with no gtest assertions will pass by default.
+//
+// FAQ:
 //
 // Why `static_assert` instead of gtest asserts?
 // - static_assert enforces compile-time evaluation and correctness
@@ -7,9 +23,17 @@
 //     why the test failed; gtest's asserts prints the actual and expected
 //     value
 //
-// It makes sense to encapsulate the static asserts within gtest; they are tests
-// after all, but they happen to be run at compile-time. Futhermore, they should
-// only be run iff the build target is testing.
+// Okay, then why use gtest at all?
+// - gtest is one of the most popular testing frameworks for c++. I'm not
+//   familiar with a better alternative for a template-meta-programming c++
+//   project like this except for boost's framework, but I wanted to stay away
+//   from boost.
+// - It makes sense to encapsulate the static asserts within a test
+//   framework; they are tests after all--they just happen to be "run" at
+//   compile-time. Futhermore, they should only be run iff the build target is
+//   testing.
+// - Gtest's parameterized typed tests are useful in succinctly declaring the
+//   actual test; then we define the test data elsewhere and inject it.
 
 #include "include/little_pp.h"
 
