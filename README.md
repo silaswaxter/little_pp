@@ -1,5 +1,9 @@
 # LittlePP
 
+<p style="text-align: center;">
+<img src="docs/yeah_its_small.png" alt="'Yeah its small' chad image" />
+</p>
+
 LittlePP is a serialization/deserialization, header-only library for C++ that is
 **_little_** in size, performance cost, and API complexity. LittlePP generates
 (through templates) serialization/deserialization methods for class types (ie
