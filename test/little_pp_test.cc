@@ -40,7 +40,8 @@
 
 #include <gtest/gtest.h>
 
-#include "test/test_data/expected_data_char_short_int_char_struct.h"
+#include "std_array_comparison_operators.h"
+#include "test_data/expected_data_char_short_int_char_struct.h"
 #include "test_data/expected_data_char_short_int_struct.h"
 #include "test_data/expected_data_empty_struct.h"
 #include "test_data/expected_data_int_char.h"

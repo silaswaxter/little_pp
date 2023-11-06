@@ -3,6 +3,7 @@ cc_test(
     size = "small",
     srcs = [
         "little_pp_test.cc",
+        "std_array_comparison_operators.h",
     ] + glob([
         "test_data/*",
     ]),
