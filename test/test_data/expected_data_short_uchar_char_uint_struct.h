@@ -1,17 +1,17 @@
-#ifndef EXPECTED_DATA_NO_PADDING_32BIT_STRUCT_H
-#define EXPECTED_DATA_NO_PADDING_32BIT_STRUCT_H
+#ifndef EXPECTED_DATA_SHORT_UCHAR_CHAR_UINT_STRUCT_H
+#define EXPECTED_DATA_SHORT_UCHAR_CHAR_UINT_STRUCT_H
 
-#include "interface_expected_data.hpp"
+#include "interface_expected_data.h"
 #include "tested_data_models.h"
 
 namespace test_data {
-namespace struct_no_padding_32bit {
+namespace struct_short_uchar_char_uint {
 
 // NOLINTBEGIN (google-runtime-int)
-struct NoPadding32Bit {
-  unsigned short a;
+struct ShortUCharCharIntStruct {
+  short a;
   unsigned char b;
-  unsigned char c;
+  char c;
   int d;
 };
 // NOLINTEND (google-runtime-int)
@@ -25,7 +25,7 @@ class ExpectedData<test_data::data_models::Simple32BitDataModel>
           ExpectedData<test_data::data_models::Simple32BitDataModel>> {
  public:
   using DataModelTypeImpl = test_data::data_models::Simple32BitDataModel;
-  using SerializedTypeImpl = NoPadding32Bit;
+  using SerializedTypeImpl = ShortUCharCharIntStruct;
 
   static constexpr std::size_t kExpectedPaddingLocationsCountImpl = 0;
   static constexpr std::array<std::size_t, 0>
@@ -41,7 +41,7 @@ class ExpectedData<
  public:
   using DataModelTypeImpl =
       test_data::data_models::Simple32BitButIntsNotSelfAlignedDataModel;
-  using SerializedTypeImpl = NoPadding32Bit;
+  using SerializedTypeImpl = ShortUCharCharIntStruct;
 
   static constexpr std::size_t kExpectedPaddingLocationsCountImpl = 0;
   static constexpr std::array<std::size_t, 0>
@@ -49,7 +49,7 @@ class ExpectedData<
   static constexpr std::array<std::size_t, 0> kExpectedPaddingByteIndexesImpl{};
 };
 
-}  // namespace struct_no_padding_32bit
+}  // namespace struct_short_uchar_char_uint
 }  // namespace test_data
 
-#endif  // EXPECTED_DATA_NO_PADDING_32BIT_STRUCT_H
+#endif  // EXPECTED_DATA_SHORT_UCHAR_CHAR_UINT_STRUCT_H

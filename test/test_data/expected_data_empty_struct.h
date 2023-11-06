@@ -1,7 +1,7 @@
 #ifndef EXPECTED_DATA_EMPTY_STRUCT_H
 #define EXPECTED_DATA_EMPTY_STRUCT_H
 
-#include "interface_expected_data.hpp"
+#include "interface_expected_data.h"
 #include "tested_data_models.h"
 
 namespace test_data {
