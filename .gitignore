@@ -1,2 +1,5 @@
 # Ignore generated bazel artifacts
 /bazel-*
+
+# Ignore 3rd_party libraries
+/include/impl/3rd_party/*
