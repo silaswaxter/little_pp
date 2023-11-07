@@ -17,8 +17,8 @@ class IExpectedData {
     return Derived::kExpectedPaddingLocationsCountImpl;
   }
 
-  static constexpr auto get_expected_padding_locations_padding_byte_count() {
-    return Derived::kExpectedPaddingLocationsPaddingByteCountImpl;
+  static constexpr auto get_expected_padding_locations_byte_counts() {
+    return Derived::kExpectedPaddingLocationsByteCountsImpl;
   }
   static constexpr auto get_expected_padding_byte_indexes() {
     return Derived::kExpectedPaddingByteIndexesImpl;
@@ -50,8 +50,7 @@ class IExpectedData {
         "Derived class must implement member function.");
     static_assert(
         !std::is_void<
-            decltype(&Derived::kExpectedPaddingLocationsPaddingByteCountImpl)>::
-            value,
+            decltype(&Derived::kExpectedPaddingLocationsByteCountsImpl)>::value,
         "Derived class must implement member function.");
     static_assert(
         !std::is_void<

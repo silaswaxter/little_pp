@@ -29,7 +29,7 @@ class ExpectedData<test_data::data_models::Simple32BitDataModel>
 
   static constexpr std::size_t kExpectedPaddingLocationsCountImpl = 2;
   static constexpr std::array<std::size_t, 2>
-      kExpectedPaddingLocationsPaddingByteCountImpl{1, 3};
+      kExpectedPaddingLocationsByteCountsImpl{1, 3};
   static constexpr std::array<std::size_t, 4> kExpectedPaddingByteIndexesImpl{
       1, 9, 10, 11};
 };
@@ -46,7 +46,7 @@ class ExpectedData<
 
   static constexpr std::size_t kExpectedPaddingLocationsCountImpl = 2;
   static constexpr std::array<std::size_t, 2>
-      kExpectedPaddingLocationsPaddingByteCountImpl{1, 1};
+      kExpectedPaddingLocationsByteCountsImpl{1, 1};
   static constexpr std::array<std::size_t, 2> kExpectedPaddingByteIndexesImpl{
       1, 9};
 };

@@ -58,8 +58,6 @@ class PaddingReflectionTest : public testing::Test {
       typename test_data::IExpectedData<T>::Parameters::DataModelType;
   using SerializedType =
       typename test_data::IExpectedData<T>::Parameters::SerializedType;
-  using LittlePPPadding =
-      SerializableClassPaddingIndexes<SerializedType, DataModelType>;
 };
 
 // The list of types we want to test.
@@ -91,7 +89,9 @@ using DataModelImplementations = testing::Types<
 TYPED_TEST_SUITE(PaddingReflectionTest, DataModelImplementations);
 
 TYPED_TEST(PaddingReflectionTest, ReturnsExpectedPaddingLocationsCount) {
-  constexpr auto kGot = TestFixture::LittlePPPadding::kPaddingLocationsCount;
+  constexpr auto kGot = little_pp::serializable_class_padding_locations_v<
+      typename TestFixture::SerializedType,
+      typename TestFixture::DataModelType>;
   constexpr auto kExpected =
       TestFixture::ExpectedData::get_expected_padding_locations_count();
 
@@ -107,9 +107,11 @@ TYPED_TEST(PaddingReflectionTest, ReturnsExpectedPaddingLocationsCount) {
 TYPED_TEST(PaddingReflectionTest,
            ReturnsExpectedPaddingLocationsPaddingByteCount) {
   constexpr auto kGot =
-      TestFixture::LittlePPPadding::kPaddingLocationsPaddingByteCount;
-  constexpr auto kExpected = TestFixture::ExpectedData::
-      get_expected_padding_locations_padding_byte_count();
+      little_pp::serializable_class_padding_locations_byte_counts_v<
+          typename TestFixture::SerializedType,
+          typename TestFixture::DataModelType>;
+  constexpr auto kExpected =
+      TestFixture::ExpectedData::get_expected_padding_locations_byte_counts();
 
   // clang-format off
   // UNCOMMENT_TO_FAIL_AND_PRINT() << "Got:      " << testing::PrintToString(kGot);
@@ -121,7 +123,9 @@ TYPED_TEST(PaddingReflectionTest,
 }
 
 TYPED_TEST(PaddingReflectionTest, ReturnsExpectedPaddingByteIndexes) {
-  constexpr auto kGot = TestFixture::LittlePPPadding::kPaddingByteIndexes;
+  constexpr auto kGot = little_pp::serializable_class_padding_indexes_v<
+      typename TestFixture::SerializedType,
+      typename TestFixture::DataModelType>;
   constexpr auto kExpected =
       TestFixture::ExpectedData::get_expected_padding_byte_indexes();
 
