@@ -5,6 +5,7 @@
 #include "impl/padding_reflection.h"
 
 namespace little_pp {
+namespace padding_reflection {
 
 // Only supporting 8-bit bytes for now to avoid scope creep.
 // Within the embedded space (motivation for LittlePP in the first place),
@@ -53,6 +54,7 @@ constexpr std::array<std::size_t, serializable_class_padding_count_v<
                                                         DataModelType>::kValue;
 // NOLINTEND(readability-identifier-naming)
 
+}  // namespace padding_reflection
 }  // namespace little_pp
 
 #endif  // LITTLE_PP_PADDING_REFLECTION_H

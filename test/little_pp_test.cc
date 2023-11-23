@@ -89,7 +89,7 @@ using DataModelImplementations = testing::Types<
 TYPED_TEST_SUITE(PaddingReflectionTest, DataModelImplementations);
 
 TYPED_TEST(PaddingReflectionTest, ReturnsExpectedPaddingLocationsCount) {
-  constexpr auto kGot = little_pp::serializable_class_padding_locations_v<
+  constexpr auto kGot = little_pp::padding_reflection::serializable_class_padding_locations_v<
       typename TestFixture::SerializedType,
       typename TestFixture::DataModelType>;
   constexpr auto kExpected =
@@ -107,7 +107,7 @@ TYPED_TEST(PaddingReflectionTest, ReturnsExpectedPaddingLocationsCount) {
 TYPED_TEST(PaddingReflectionTest,
            ReturnsExpectedPaddingLocationsPaddingByteCount) {
   constexpr auto kGot =
-      little_pp::serializable_class_padding_locations_byte_counts_v<
+      little_pp::padding_reflection::serializable_class_padding_locations_byte_counts_v<
           typename TestFixture::SerializedType,
           typename TestFixture::DataModelType>;
   constexpr auto kExpected =
@@ -123,7 +123,7 @@ TYPED_TEST(PaddingReflectionTest,
 }
 
 TYPED_TEST(PaddingReflectionTest, ReturnsExpectedPaddingByteIndexes) {
-  constexpr auto kGot = little_pp::serializable_class_padding_indexes_v<
+  constexpr auto kGot = little_pp::padding_reflection::serializable_class_padding_indexes_v<
       typename TestFixture::SerializedType,
       typename TestFixture::DataModelType>;
   constexpr auto kExpected =
