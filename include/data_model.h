@@ -5,6 +5,7 @@
 #include <type_traits>
 
 namespace little_pp {
+namespace data_model {
 
 enum class Endianess {
   kBigEndian,
@@ -226,6 +227,7 @@ struct DataModel {
   }
 };
 
+}  // namespace data_model
 }  // namespace little_pp
 
 #endif  // DATA_MODEL_H
