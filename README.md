@@ -140,7 +140,8 @@ system generic if I'm the only one using it._
 
 #### Commands
 
-- All tests are run with `bazelisk test --config=clang_config //test:all`
+- All tests are run with
+  `bazelisk test --config=clang_config --test_output=all //test:all`
 - `compile_commands.json` is generated with
   `bazelisk run --config=clang_config //:refresh_compile_commands`
   - This file is consumed by tools such as `clang-tidy`. Read more
