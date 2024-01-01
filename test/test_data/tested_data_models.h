@@ -8,15 +8,18 @@ namespace data_models {
 // clang-format off
 // NOLINTBEGIN(*-magic-numbers)
 using Simple32BitDataModel =
-    little_pp::data_model::DataModel<1, 1, 1, 1, 1, 1, 2, 2,
+    little_pp::data_model::DataModel<little_pp::data_model::Endianess::kLittleEndian,
+                                     1, 1, 1, 1, 1, 1, 2, 2,
                                      2, 2, 2, 2,
                                      4, 4, 4, 4,
                                      8, 8, 8, 8,
                                      8, 8, 8, 8,
                                      4, 4, 8, 8, 8, 8,
                                      1, 1>;
+
 using Simple32BitButIntsNotSelfAlignedDataModel =
-    little_pp::data_model::DataModel<1, 1, 1, 1, 1, 1, 2, 2,
+    little_pp::data_model::DataModel<little_pp::data_model::Endianess::kLittleEndian,
+                                     1, 1, 1, 1, 1, 1, 2, 2,
                                      2, 2, 2, 2,
                                      4, 2, 4, 2,
                                      8, 8, 8, 8,

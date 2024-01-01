@@ -22,13 +22,12 @@
 #define LITTLE_PP_IMPL_PADDING_REFLECTION_H
 
 #include <boost/pfr/core.hpp>
-#include <cstddef>
 #include <type_traits>
 
 #include "../data_model.h"
 #include "little_pp_helpers.h"
 
-namespace litte_pp {
+namespace little_pp {
 
 namespace impl {
 
@@ -371,6 +370,6 @@ struct SerializableClassPaddingIndexes {
 
 }  // namespace impl
 
-}  // namespace litte_pp
+}  // namespace little_pp
 
 #endif  // LITTLE_PP_IMPL_PADDING_REFLECTION_H

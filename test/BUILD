@@ -1,8 +1,8 @@
 cc_test(
-    name = "little_pp",
+    name = "padding_reflection",
     size = "small",
     srcs = [
-        "little_pp_test.cc",
+        "padding_reflection_test.cc",
         "std_array_comparison_operators.h",
     ] + glob([
         "test_data/*",

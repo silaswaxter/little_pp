@@ -29,7 +29,8 @@ constexpr auto get_this_architecture_endianess() -> Endianess {
 
 // Encode sizeof and alignof of supported POD type into a DataModel type.
 // See https://en.cppreference.com/w/cpp/language/types
-template <std::size_t kCharSize, std::size_t kCharAlign,
+template <Endianess endianess,
+          std::size_t kCharSize, std::size_t kCharAlign,
           std::size_t kUnsignedCharSize, std::size_t kUnsignedCharAlign,
           std::size_t kSignedCharSize, std::size_t kSignedCharAlign,
           std::size_t kWCharSize, std::size_t kWCharAlign,
@@ -52,6 +53,9 @@ template <std::size_t kCharSize, std::size_t kCharAlign,
 
           std::size_t kBoolSize, std::size_t kBoolAlign>
 struct DataModel {
+  static constexpr auto get_endianess() -> Endianess {
+    return endianess;
+  }
   template <class T>
   static constexpr auto get_size() -> std::size_t {
     // NOTE: this method cannot be implemented using template full

@@ -5,6 +5,7 @@
 #include "impl/padding_reflection.h"
 
 namespace little_pp {
+
 namespace padding_reflection {
 
 // Only supporting 8-bit bytes for now to avoid scope creep.
@@ -20,41 +21,51 @@ static_assert(CHAR_BIT == kRequiredCharBit,
 
 // Violate the google style guide in favor of std library convention.
 // NOLINTBEGIN(readability-identifier-naming)
+
+// Check if type is serializable.
 template <typename T>
 constexpr bool is_serializable_type_v =
-    litte_pp::impl::IsSerializableType<T>::kValue;
+    little_pp::impl::IsSerializableType<T>::kValue;
 
+// Get the alignment of the serializable class type.
 template <typename SerializableClassType, typename DataModelType>
 constexpr std::size_t serializable_class_alignment_v =
-    litte_pp::impl::SerializableClassAlignment<SerializableClassType,
-                                               DataModelType>::kValue;
+    little_pp::impl::SerializableClassAlignment<SerializableClassType,
+                                                DataModelType>::kValue;
 
+// Get the number of padding locations (the number of places where there is one
+// or more bytes of consecutive padding).
 template <typename SerializableClassType, typename DataModelType>
 constexpr std::size_t serializable_class_padding_locations_v =
-    litte_pp::impl::SerializableClassPaddingLocations<SerializableClassType,
-                                                      DataModelType>::kValue;
+    little_pp::impl::SerializableClassPaddingLocations<SerializableClassType,
+                                                       DataModelType>::kValue;
 
+// Get an array where each element (in order) describes the padding location's
+// number of padding bytes.
 template <typename SerializableClassType, typename DataModelType>
 constexpr std::array<std::size_t, serializable_class_padding_locations_v<
                                       SerializableClassType, DataModelType>>
     serializable_class_padding_locations_byte_counts_v =
-        litte_pp::impl::SerializableClassPaddingLocationsByteCounts<
+        little_pp::impl::SerializableClassPaddingLocationsByteCounts<
             SerializableClassType, DataModelType>::kValue;
 
+// Get the total number of padding bytes.
 template <typename SerializableClassType, typename DataModelType>
 constexpr std::size_t serializable_class_padding_count_v =
-    litte_pp::impl::SerializableClassPaddingByteCount<SerializableClassType,
-                                                      DataModelType>::kValue;
+    little_pp::impl::SerializableClassPaddingByteCount<SerializableClassType,
+                                                       DataModelType>::kValue;
 
+// Get the padding byte indexes (in order)
 template <typename SerializableClassType, typename DataModelType>
 constexpr std::array<std::size_t, serializable_class_padding_count_v<
                                       SerializableClassType, DataModelType>>
     serializable_class_padding_indexes_v =
-        litte_pp::impl::SerializableClassPaddingIndexes<SerializableClassType,
-                                                        DataModelType>::kValue;
+        little_pp::impl::SerializableClassPaddingIndexes<SerializableClassType,
+                                                         DataModelType>::kValue;
 // NOLINTEND(readability-identifier-naming)
 
 }  // namespace padding_reflection
+
 }  // namespace little_pp
 
 #endif  // LITTLE_PP_PADDING_REFLECTION_H
