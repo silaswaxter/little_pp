@@ -9,6 +9,6 @@ cc_test(
     ]),
     deps = [
         "//include:little_pp",
-        "@gtest//:gtest_main",
+        "@googletest//:gtest_main",
     ],
 )
