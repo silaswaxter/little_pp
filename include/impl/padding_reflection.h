@@ -22,9 +22,11 @@
 #define LITTLE_PP_IMPL_PADDING_REFLECTION_H
 
 #include <boost/pfr/core.hpp>
+#include <iostream>
 #include <type_traits>
 
 #include "../data_model.h"
+#include "../unique_padding_element.h"
 #include "little_pp_helpers.h"
 
 namespace little_pp {
@@ -366,6 +368,422 @@ struct SerializableClassPaddingIndexes {
   static constexpr ReturnType kValue =
       padding_byte_indexes<0, boost::pfr::tuple_size_v<SerializableClassType>,
                            1>();
+};
+
+struct FillFromRemainingPaddingArray {
+  template <std::size_t index, std::size_t NRet,
+            typename ReturnArrayOffsetIntegralConstType, std::size_t NPadding,
+            typename PaddingArrayOffsetIntegralConstType>
+  static constexpr void func(
+      std::array<unique_padding_element::UniquePaddingElement, NRet>&
+          return_array,
+      ReturnArrayOffsetIntegralConstType /*unused*/,
+      std::array<std::size_t, NPadding>& padding_array,
+      PaddingArrayOffsetIntegralConstType /*unused*/) {
+    constexpr std::size_t kReturnArrayI =
+        ReturnArrayOffsetIntegralConstType::value + index;
+    constexpr std::size_t kPaddingArrayI =
+        PaddingArrayOffsetIntegralConstType::value + index;
+    std::get<kReturnArrayI>(return_array) =
+        little_pp::unique_padding_element::UniquePaddingElement{
+            std::get<kPaddingArrayI>(padding_array), 1, false};
+  };
+};
+
+// struct RenameMe {
+//   template <std::size_t first_index, std::size_t second_index = 0>
+//   static constexpr void func(
+//       std::integral_constant<std::size_t, second_index> /*unused*/ =
+//           std::integral_constant<std::size_t, second_index>()) {
+//     if (first_index == 1 && second_index == 0) {
+//       func<first_index>(
+//           std::integral_constant<std::size_t, second_index + 1>());
+//     }
+//
+//     //   constexpr std::size_t first_unique_padding_bytes = 0;
+//     //   constexpr std::size_t second_unique_padding_bytes = 0;
+//     //
+//     //   // when either the first or second padding has been fully iterated
+//     //   through,
+//     //   // add the rest of the other padding to the unique paddings.
+//     //   if (first_i == first_padding_byte_indexes.size()) {
+//     //     static_for<second_i, second_padding_byte_indexes.size(),
+//     //                FillFromRemainingPaddingArray>(
+//     //         return_array, i_return, second_padding_byte_indexes,
+//     //         second_i);
+//     //   }
+//     //   if (second_i == second_padding_byte_indexes.size()) {
+//     //     static_for<first_i, first_padding_byte_indexes.size(),
+//     //                FillFromRemainingPaddingArray>(
+//     //         return_array, i_return, first_padding_byte_indexes,
+//     //         first_i);
+//     //   }
+//     //
+//     //   // the padding index value can be compared to find uniqueness if it
+//     is
+//     //   // adjusted as if only non-unique padding is applied
+//     //   // first_padding_byte_index = first_nonunique_padding_byte_index +
+//     //   //                            first_accounted_unique_padding
+//     //   std::size_t current_first_nonunique =
+//     //       std::get<first_i>(first_padding_byte_indexes) +
+//     //       first_unique_padding_bytes;
+//     //   std::size_t current_second_nonunique =
+//     //       std::get<first_i>(second_padding_byte_indexes) +
+//     //       second_unique_padding_bytes;
+//     //
+//     //   if (current_first_nonunique == current_second_nonunique) {
+//     //     // call loop with:
+//     //     // first_i++;
+//     //     // second_i++;
+//     //     continue;
+//     //   }
+//     //   if (current_first_nonunique < current_second_nonunique) {
+//     //     // do
+//     //     return_array[i_return] =
+//     //         little_pp::unique_padding_element::UniquePaddingElement{
+//     //             first_padding_byte_indexes[first_i], 1, true};
+//     //     i_return++;
+//     //     // then call loop with:
+//     //     first_i++;
+//     //   }
+//     //   if (current_second_nonunique < current_first_nonunique) {
+//     //     // do
+//     //     return_array[i_return] =
+//     //         little_pp::unique_padding_element::UniquePaddingElement{
+//     //             second_padding_byte_indexes[second_i], 1, false};
+//     //     i_return++;
+//     //     // then call this function with
+//     //     second_i++;
+//     //   }
+//   }
+// };
+
+// template <std::size_t i1_max, std::size_t i2_max>
+// struct UniquePaddingInternal {
+//   template <std::size_t i1 = 0, std::size_t i2 = 0, std::size_t return_i = 0,
+//             std::size_t N1, std::size_t N2, std::size_t NRet>
+//   static constexpr inline auto func(
+//       std::array<std::size_t, N1>& first_padding_byte_indexes,
+//       std::array<std::size_t, N2>& second_padding_byte_indexes,
+//       std::array<unique_padding_element::UniquePaddingElement, NRet>&
+//           return_array) ->
+//       typename std::enable_if<(i1 < i1_max && i2 < i2_max)>::type {
+//     // normal; use index1=i1 and index2=i2
+//
+//     func_impl<i1, i2, return_i>(first_padding_byte_indexes,
+//                                 second_padding_byte_indexes, return_array);
+//     // instantiates more recursion
+//   }
+//
+//   template <std::size_t i1 = 0, std::size_t i2 = 0, std::size_t return_i = 0,
+//             std::size_t N1, std::size_t N2, std::size_t NRet>
+//   static constexpr inline auto func(
+//       std::array<std::size_t, N1>& first_padding_byte_indexes,
+//       std::array<std::size_t, N2>& second_padding_byte_indexes,
+//       std::array<unique_padding_element::UniquePaddingElement, NRet>&
+//           return_array) ->
+//       typename std::enable_if<(i1 < i1_max && i2 == i2_max)>::type {
+//     // use index1=i1 and index2=(i2_max-1)
+//
+//     func_impl<i1, i2_max - 1, return_i>(
+//         first_padding_byte_indexes, second_padding_byte_indexes,
+//         return_array);
+//     // instantiates more recursion
+//   }
+//
+//   template <std::size_t i1 = 0, std::size_t i2 = 0, std::size_t return_i = 0,
+//             std::size_t N1, std::size_t N2, std::size_t NRet>
+//   static constexpr inline auto func(
+//       std::array<std::size_t, N1>& first_padding_byte_indexes,
+//       std::array<std::size_t, N2>& second_padding_byte_indexes,
+//       std::array<unique_padding_element::UniquePaddingElement, NRet>&
+//           return_array) ->
+//       typename std::enable_if<(i1 == i1_max && i2 < i2_max)>::type {
+//     // use index1=(i1_max-1) and index2=i2
+//
+//     func_impl<i1_max - 1, i1, return_i>(
+//         first_padding_byte_indexes, second_padding_byte_indexes,
+//         return_array);
+//     // instantiates more recursion
+//   }
+//
+//   template <std::size_t i1 = 0, std::size_t i2 = 0, std::size_t return_i = 0,
+//             std::size_t N1, std::size_t N2, std::size_t NRet>
+//   static constexpr inline auto func(
+//       std::array<std::size_t, N1>& first_padding_byte_indexes,
+//       std::array<std::size_t, N2>& second_padding_byte_indexes,
+//       std::array<unique_padding_element::UniquePaddingElement, NRet>&
+//           return_array) ->
+//       typename std::enable_if<(i1 == i1_max && i2 == i2_max)>::type {
+//     // returns from recursion
+//   }
+//
+//   template <std::size_t i1, std::size_t i2, std::size_t return_i,
+//             std::size_t first_unique_padding_bytes = 0,
+//             std::size_t second_unique_padding_bytes = 0, std::size_t N1,
+//             std::size_t N2, std::size_t NRet>
+//   static constexpr void func_impl(
+//       std::array<std::size_t, N1>& first_padding_byte_indexes,
+//       std::array<std::size_t, N2>& second_padding_byte_indexes,
+//       std::array<unique_padding_element::UniquePaddingElement, NRet>&
+//           return_array) {
+//     //   constexpr std::size_t first_unique_padding_bytes = 0;
+//     //   constexpr std::size_t second_unique_padding_bytes = 0;
+//     //
+//     // when either the first or second padding has been fully iterated
+//     through,
+//     // add the rest of the other padding to the unique paddings.
+//     if (i1 == i1_max) {
+//       static_for<i2, i2_max, FillFromRemainingPaddingArray>(
+//           return_array, std::integral_constant<std::size_t, return_i>(),
+//           second_padding_byte_indexes,
+//           std::integral_constant<std::size_t, i2>());
+//       return;
+//     }
+//     if (i2 == i2_max) {
+//       static_for<i1, i1_max, FillFromRemainingPaddingArray>(
+//           return_array, std::integral_constant<std::size_t, return_i>(),
+//           first_padding_byte_indexes,
+//           std::integral_constant<std::size_t, i1>());
+//       return;
+//     }
+//
+//     // the padding index value can be compared to find uniqueness if it is
+//     // adjusted as if only non-unique padding is applied
+//     // first_padding_byte_index = first_nonunique_padding_byte_index +
+//     //                            first_accounted_unique_padding
+//     // constexpr kIndex1 = std::get<i1>(first_padding_byte_indexes);
+//
+//     // constexpr std::size_t kCurrentFirstNonunique =
+//     //     std::get<i1>(first_padding_byte_indexes) -
+//     first_unique_padding_bytes;
+//     // constexpr std::size_t kCurrentSecondNonunique =
+//     //     std::get<i2>(second_padding_byte_indexes) -
+//     second_unique_padding_bytes;
+//
+//     // if (kCurrentFirstNonunique == kCurrentSecondNonunique) {
+//     //   func<i1 + 1, i2 + 1, return_i>(first_padding_byte_indexes,
+//     //                                  second_padding_byte_indexes,
+//     //                                  return_array);
+//     // }
+//     // if (kCurrentFirstNonunique < kCurrentSecondNonunique) {
+//     //   // do
+//     //   std::get<return_i>(return_array) =
+//     //       little_pp::unique_padding_element::UniquePaddingElement{
+//     //           std::get<i1>(first_padding_byte_indexes), 1, true};
+//     //   func<i1 + 1, i2, return_i + 1>(first_padding_byte_indexes,
+//     //                                  second_padding_byte_indexes,
+//     //                                  return_array);
+//     // }
+//     // if (kCurrentSecondNonunique < kCurrentFirstNonunique) {
+//     //   // do
+//     //   return_array[i_return] =
+//     //       little_pp::unique_padding_element::UniquePaddingElement{
+//     //           second_padding_byte_indexes[second_i], 1, false};
+//     //   i_return++;
+//     //   // then call this function with
+//     //   second_i++;
+//     // }
+//   }
+// };
+
+template <typename SerializableClassType, typename FirstDataModelType,
+          typename SecondDataModelType>
+struct UniquePaddingImpl {
+  static constexpr auto kFirstArray =
+      SerializableClassPaddingIndexes<SerializableClassType,
+                                      FirstDataModelType>::kValue;
+  static constexpr auto kSecondArray =
+      SerializableClassPaddingIndexes<SerializableClassType,
+                                      SecondDataModelType>::kValue;
+
+  using FirstArrayType = decltype(kFirstArray);
+  using SecondArrayType = decltype(kSecondArray);
+
+  // A single "entry-point" function allows refactoring the implementation
+  // while maintaining a clean minimal interface; will likely need to refactor
+  // into a divide-and-conquer then combine approach to circumvent recursion
+  // limits which will be hit for very large structs.
+  static constexpr auto value() {
+    constexpr auto kUntrimmedArray = func_impl();
+    return trimmer<std::get<1>(kUntrimmedArray)>(std::get<0>(kUntrimmedArray));
+  }
+
+  // IMPLEMENTATION OF ALGORITHM
+  // ---------------------------
+  // Use SFINAE enable_if to create an array of unique padding indexes from an
+  // array of the first data model padding indexes and an array of the second
+  // data model padding indexes.
+  //
+  // We have 4 functions:
+  //  1. A function for when we are NOT at the end of EITHER padding index
+  //     arrays
+  //  2. A function for when we are at the end of the first padding index array
+  //  3. A function for when we are at the end of the second padding index array
+  //  4. A function for when we are at the end of BOTH padding index arrays
+  // ---------------------------
+  using UntrimmedReturnType =
+      std::array<little_pp::unique_padding_element::UniquePaddingElement,
+                 kFirstArray.size() + kSecondArray.size()>;
+  // this type holds the untrimmed array and the last appended index so that
+  // the trimmer can know what std::array size to return
+  using TrimPreparedReturnType = std::tuple<UntrimmedReturnType, std::size_t>;
+
+  // Since the returned array is compressed (i.e. consecutive indexes are
+  // captured with first index and length), we need conditional appending. This
+  // set of functions takes care of this.
+  // ---------------------------
+  // returns true if element was appended by adding true to the previous
+  // element's span, returns false if a new element was added.
+  template <std::size_t i_return, std::size_t padding_index_value,
+            bool is_padding_for_first_passed_data_model>
+  static constexpr auto append_unique_padding_element(
+      UntrimmedReturnType& return_array) ->
+      typename std::enable_if<(i_return == 0), bool>::type {
+    // append new non-spanning padding index value
+    std::get<i_return>(return_array) =
+        little_pp::unique_padding_element::UniquePaddingElement{
+            padding_index_value, 1, is_padding_for_first_passed_data_model};
+    return false;
+  }
+
+  // returns true if element was appended by adding true to the previous
+  // element's span, returns false if a new element was added.
+  template <std::size_t i_return, std::size_t padding_index_value,
+            bool is_padding_for_first_passed_data_model>
+  static constexpr auto append_unique_padding_element(
+      UntrimmedReturnType& return_array) ->
+      typename std::enable_if<(i_return > 0), bool>::type {
+    auto previous_returned_padding_index_value =
+        std::get<i_return - 1>(return_array).padding_first_index;
+    auto previous_returned_padding_length =
+        std::get<i_return - 1>(return_array).padding_span_length;
+    // check if this padding index is part of a span and can be added by
+    // increasing length of padding indexes of previous returned padding
+    // index
+    if (previous_returned_padding_index_value ==
+        (padding_index_value - previous_returned_padding_length)) {
+      std::get<i_return - 1>(return_array).padding_span_length++;
+      return true;
+    }
+    // append new non-spanning padding index value
+    std::get<i_return>(return_array) =
+        little_pp::unique_padding_element::UniquePaddingElement{
+            padding_index_value, 1, is_padding_for_first_passed_data_model};
+    return false;
+  }
+
+  template <std::size_t i1 = 0, std::size_t i2 = 0, std::size_t i_return = 0,
+            std::size_t unique_padding_bytes_1 = 0,
+            std::size_t unique_padding_bytes_2 = 0>
+  static constexpr auto func_impl(UntrimmedReturnType return_array = {}) ->
+      typename std::enable_if<i1 != kFirstArray.size() &&
+                                  i2 != kSecondArray.size(),
+                              TrimPreparedReturnType>::type {
+    std::size_t normalized_padding_index_1 =
+        std::get<i1>(kFirstArray) - unique_padding_bytes_1;
+    std::size_t normalized_padding_index_2 =
+        std::get<i2>(kSecondArray) - unique_padding_bytes_2;
+
+    if (normalized_padding_index_1 == normalized_padding_index_2) {
+      return func_impl<i1 + 1, i2 + 1, i_return, unique_padding_bytes_1,
+                       unique_padding_bytes_2>(return_array);
+    }
+    if (normalized_padding_index_1 < normalized_padding_index_2) {
+      if (append_unique_padding_element<i_return, std::get<i1>(kFirstArray),
+                                        true>(return_array)) {
+        return func_impl<i1 + 1, i2, i_return, unique_padding_bytes_1 + 1,
+                         unique_padding_bytes_2>(return_array);
+      }
+      return func_impl<i1 + 1, i2, i_return + 1, unique_padding_bytes_1 + 1,
+                       unique_padding_bytes_2>(return_array);
+    }
+    if (normalized_padding_index_1 > normalized_padding_index_2) {
+      if (append_unique_padding_element<i_return, std::get<i2>(kSecondArray),
+                                        false>(return_array)) {
+        return func_impl<i1, i2 + 1, i_return, unique_padding_bytes_1,
+                         unique_padding_bytes_2 + 1>(return_array);
+      }
+      return func_impl<i1, i2 + 1, i_return + 1, unique_padding_bytes_1,
+                       unique_padding_bytes_2 + 1>(return_array);
+    }
+  }
+
+  template <std::size_t i1 = 0, std::size_t i2 = 0, std::size_t i_return = 0,
+            std::size_t unique_padding_bytes_1 = 0,
+            std::size_t unique_padding_bytes_2 = 0>
+  static constexpr auto func_impl(UntrimmedReturnType return_array = {}) ->
+      typename std::enable_if<i1 == kFirstArray.size() &&
+                                  i2 != kSecondArray.size(),
+                              TrimPreparedReturnType>::type {
+    // Since we are at the end of the first array, the rest of the second array
+    // has unique indexes
+    if (append_unique_padding_element<i_return, std::get<i2>(kSecondArray),
+                                      false>(return_array)) {
+      return func_impl<i1, i2 + 1, i_return, unique_padding_bytes_1,
+                       unique_padding_bytes_2 + 1>(return_array);
+    }
+    return func_impl<i1, i2 + 1, i_return + 1, unique_padding_bytes_1,
+                     unique_padding_bytes_2 + 1>(return_array);
+  }
+
+  template <std::size_t i1 = 0, std::size_t i2 = 0, std::size_t i_return = 0,
+            std::size_t unique_padding_bytes_1 = 0,
+            std::size_t unique_padding_bytes_2 = 0>
+  static constexpr auto func_impl(UntrimmedReturnType return_array = {}) ->
+      typename std::enable_if<i1 != kFirstArray.size() &&
+                                  i2 == kSecondArray.size(),
+                              TrimPreparedReturnType>::type {
+    // Since we are at the end of the second array, the rest of the first array
+    // has unique indexes
+    if (append_unique_padding_element<i_return, std::get<i1>(kFirstArray),
+                                      true>(return_array)) {
+      return func_impl<i1 + 1, i2, i_return, unique_padding_bytes_1 + 1,
+                       unique_padding_bytes_2>(return_array);
+    }
+    return func_impl<i1 + 1, i2, i_return + 1, unique_padding_bytes_1 + 1,
+                     unique_padding_bytes_2>(return_array);
+  }
+
+  template <std::size_t i1 = 0, std::size_t i2 = 0, std::size_t i_return = 0,
+            std::size_t unique_padding_bytes_1 = 0,
+            std::size_t unique_padding_bytes_2 = 0>
+  static constexpr auto func_impl(UntrimmedReturnType return_array = {}) ->
+      typename std::enable_if<i1 == kFirstArray.size() &&
+                                  i2 == kSecondArray.size(),
+                              TrimPreparedReturnType>::type {
+    // Since we are at the end of both arrays, return from recursion, but first
+    // trim empty elements from the end.
+    return {return_array, i_return};
+  }
+
+  template <std::size_t last_appdended_index, std::size_t i = 0>
+  static constexpr auto trimmer(
+      UntrimmedReturnType untrimmed_array,
+      std::array<unique_padding_element::UniquePaddingElement,
+                 last_appdended_index>
+          trimmed_array = {}) ->
+      typename std::enable_if<
+          (i < last_appdended_index),
+          std::array<unique_padding_element::UniquePaddingElement,
+                     last_appdended_index>>::type {
+    std::get<i>(trimmed_array) = std::get<i>(untrimmed_array);
+    return trimmer<last_appdended_index, i + 1>(untrimmed_array, trimmed_array);
+
+  }
+
+  template <std::size_t last_appdended_index, std::size_t i = 0>
+  static constexpr auto trimmer(
+      UntrimmedReturnType untrimmed_array,
+      std::array<unique_padding_element::UniquePaddingElement,
+                 last_appdended_index>
+          trimmed_array = {}) ->
+      typename std::enable_if<
+          (i == last_appdended_index),
+          std::array<unique_padding_element::UniquePaddingElement,
+                     last_appdended_index>>::type {
+    return trimmed_array;
+  }
 };
 
 }  // namespace impl

@@ -32,25 +32,18 @@ class ExpectedData<test_data::data_models::Simple32BitDataModel>
       5, 6, 7};
 };
 
-// This tests trailing padding for a non-self-aligned primitive type. The int
-// has an alignment of 2, but size of 4. The char (align 1, size 1) should be
-// placed on the 5th byte. Since the largest alignment of the struct is 2, there
-// should be 1 byte of trailing padding.
 template <>
-class ExpectedData<
-    test_data::data_models::Simple32BitButIntsNotSelfAlignedDataModel>
-    : public IExpectedData<ExpectedData<
-          test_data::data_models::Simple32BitButIntsNotSelfAlignedDataModel>> {
+class ExpectedData<test_data::data_models::NoPaddingDataModel>
+    : public IExpectedData<
+          ExpectedData<test_data::data_models::NoPaddingDataModel>> {
  public:
-  using DataModelTypeImpl =
-      test_data::data_models::Simple32BitButIntsNotSelfAlignedDataModel;
+  using DataModelTypeImpl = test_data::data_models::NoPaddingDataModel;
   using SerializedTypeImpl = IntCharStruct;
 
-  static constexpr std::size_t kExpectedPaddingLocationsCountImpl = 1;
-  static constexpr std::array<std::size_t, 1>
-      kExpectedPaddingLocationsByteCountsImpl{1};
-  static constexpr std::array<std::size_t, 1> kExpectedPaddingByteIndexesImpl{
-      5};
+  static constexpr std::size_t kExpectedPaddingLocationsCountImpl = 0;
+  static constexpr std::array<std::size_t, 0>
+      kExpectedPaddingLocationsByteCountsImpl{};
+  static constexpr std::array<std::size_t, 0> kExpectedPaddingByteIndexesImpl{};
 };
 
 }  // namespace struct_int_char

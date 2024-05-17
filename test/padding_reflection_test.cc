@@ -61,28 +61,28 @@ class PaddingReflectionTest : public testing::Test {
 };
 
 // The list of types we want to test.
-using DataModelImplementations = testing::Types<
-    test_data::struct_empty::ExpectedData<
-        test_data::data_models::Simple32BitDataModel>,
-    test_data::struct_empty::ExpectedData<
-        test_data::data_models::Simple32BitButIntsNotSelfAlignedDataModel>,
-    test_data::struct_short_uchar_char_uint::ExpectedData<
-        test_data::data_models::Simple32BitDataModel>,
-    test_data::struct_short_uchar_char_uint::ExpectedData<
-        test_data::data_models::Simple32BitButIntsNotSelfAlignedDataModel>,
-    test_data::struct_char_int_long::ExpectedData<
-        test_data::data_models::Simple32BitDataModel>,
-    test_data::struct_char_int_long::ExpectedData<
-        test_data::data_models::Simple32BitButIntsNotSelfAlignedDataModel>,
-    test_data::struct_int_char::ExpectedData<
-        test_data::data_models::Simple32BitDataModel>,
-    test_data::struct_int_char::ExpectedData<
-        test_data::data_models::Simple32BitButIntsNotSelfAlignedDataModel>,
-    test_data::struct_char_short_int_char::ExpectedData<
-        test_data::data_models::Simple32BitDataModel>,
-    test_data::struct_char_short_int_char::ExpectedData<
-        test_data::data_models::Simple32BitButIntsNotSelfAlignedDataModel>
-    // clang-format off
+using DataModelImplementations =
+    testing::Types<test_data::struct_empty::ExpectedData<
+                       test_data::data_models::Simple32BitDataModel>,
+                   test_data::struct_empty::ExpectedData<
+                       test_data::data_models::NoPaddingDataModel>,
+                   test_data::struct_short_uchar_char_uint::ExpectedData<
+                       test_data::data_models::Simple32BitDataModel>,
+                   test_data::struct_short_uchar_char_uint::ExpectedData<
+                       test_data::data_models::NoPaddingDataModel>,
+                   test_data::struct_char_int_long::ExpectedData<
+                       test_data::data_models::Simple32BitDataModel>,
+                   test_data::struct_char_int_long::ExpectedData<
+                       test_data::data_models::NoPaddingDataModel>,
+                   test_data::struct_int_char::ExpectedData<
+                       test_data::data_models::Simple32BitDataModel>,
+                   test_data::struct_int_char::ExpectedData<
+                       test_data::data_models::NoPaddingDataModel>,
+                   test_data::struct_char_short_int_char::ExpectedData<
+                       test_data::data_models::Simple32BitDataModel>,
+                   test_data::struct_char_short_int_char::ExpectedData<
+                       test_data::data_models::NoPaddingDataModel>
+                   // clang-format off
 >;
 // clang-format on
 

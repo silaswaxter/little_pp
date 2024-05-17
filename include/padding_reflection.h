@@ -3,6 +3,7 @@
 #define LITTLE_PP_PADDING_REFLECTION_H
 
 #include "impl/padding_reflection.h"
+#include "unique_padding_element.h"
 
 namespace little_pp {
 
@@ -62,6 +63,19 @@ constexpr std::array<std::size_t, serializable_class_padding_count_v<
     serializable_class_padding_indexes_v =
         little_pp::impl::SerializableClassPaddingIndexes<SerializableClassType,
                                                          DataModelType>::kValue;
+// Returns the unique padding between two sequences describing padding indexes.
+// Unique padding is defined as the indexes of padding which would need to be
+// skipped in a direct copy of between the objects.
+//
+// Note: correct usage enforced here by defining it as a templated constexpr
+// object, but implementation is a constexpr function with padding indexes array
+// as parameters--making testing easier because mock data can be injected.
+template <typename SerializableClassType, typename FirstDataModelType,
+          typename SecondDataModelType>
+constexpr auto unique_padding_v = little_pp::impl::UniquePaddingImpl<
+    SerializableClassType, FirstDataModelType, SecondDataModelType>::value();
+
+
 // NOLINTEND(readability-identifier-naming)
 
 }  // namespace padding_reflection

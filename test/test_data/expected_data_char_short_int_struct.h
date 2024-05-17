@@ -34,20 +34,17 @@ class ExpectedData<test_data::data_models::Simple32BitDataModel>
 };
 
 template <>
-class ExpectedData<
-    test_data::data_models::Simple32BitButIntsNotSelfAlignedDataModel>
-    : public IExpectedData<ExpectedData<
-          test_data::data_models::Simple32BitButIntsNotSelfAlignedDataModel>> {
+class ExpectedData<test_data::data_models::NoPaddingDataModel>
+    : public IExpectedData<
+          ExpectedData<test_data::data_models::NoPaddingDataModel>> {
  public:
-  using DataModelTypeImpl =
-      test_data::data_models::Simple32BitButIntsNotSelfAlignedDataModel;
+  using DataModelTypeImpl = test_data::data_models::NoPaddingDataModel;
   using SerializedTypeImpl = CharIntLongStruct;
 
-  static constexpr std::size_t kExpectedPaddingLocationsCountImpl = 2;
-  static constexpr std::array<std::size_t, 2>
-      kExpectedPaddingLocationsByteCountsImpl{1, 2};
-  static constexpr std::array<std::size_t, 3> kExpectedPaddingByteIndexesImpl{
-      1, 6, 7};
+  static constexpr std::size_t kExpectedPaddingLocationsCountImpl = 0;
+  static constexpr std::array<std::size_t, 0>
+      kExpectedPaddingLocationsByteCountsImpl{};
+  static constexpr std::array<std::size_t, 0> kExpectedPaddingByteIndexesImpl{};
 };
 
 }  // namespace struct_char_int_long

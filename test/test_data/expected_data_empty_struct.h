@@ -27,13 +27,11 @@ class ExpectedData<test_data::data_models::Simple32BitDataModel>
 };
 
 template <>
-class ExpectedData<
-    test_data::data_models::Simple32BitButIntsNotSelfAlignedDataModel>
-    : public IExpectedData<ExpectedData<
-          test_data::data_models::Simple32BitButIntsNotSelfAlignedDataModel>> {
+class ExpectedData<test_data::data_models::NoPaddingDataModel>
+    : public IExpectedData<
+          ExpectedData<test_data::data_models::NoPaddingDataModel>> {
  public:
-  using DataModelTypeImpl =
-      test_data::data_models::Simple32BitButIntsNotSelfAlignedDataModel;
+  using DataModelTypeImpl = test_data::data_models::NoPaddingDataModel;
   using SerializedTypeImpl = Empty;
 
   static constexpr std::size_t kExpectedPaddingLocationsCountImpl = 0;
