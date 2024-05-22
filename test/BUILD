@@ -18,7 +18,7 @@ cc_test(
     size = "small",
     srcs = [
         "unique_padding_test.cc",
-        "std_array_comparison_operators.h",
+        # "std_array_comparison_operators.h",
     ] + glob([
         "test_data/*",
     ]),
